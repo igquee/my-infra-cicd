@@ -1,0 +1,41 @@
+name: "Infrastructure CI/CD Pipeline"
+
+# กำหนด Event ที่จะให้ Pipeline ทำงาน
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  terraform-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ดึงโค้ดลงมาที่ Runner
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # ติดตั้ง Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.0"
+
+      # ตรวจสอบรูปแบบโค้ด
+      - name: Check Format
+        run: terraform fmt -check
+
+      # ดาวน์โหลด Provider/Modules
+      - name: Terraform Init
+        run: terraform init
+
+      # แสดงการเปลี่ยนแปลง (รันเฉพาะตอนเปิด Pull Request)
+      - name: Terraform Plan
+        if: github.event_name == 'pull_request'
+        run: terraform plan
+
+      # สั่งสร้างของจริง (รันเฉพาะตอน Merge เข้า main)
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve
