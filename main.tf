@@ -11,5 +11,5 @@ terraform {
 # สร้างไฟล์ทดสอบเพื่อจำลองการ provisioning ทรัพยากร
 resource "local_file" "demo" {
   filename = "${path.module}/hello.txt"
-  content  = "Infra CI/CD via GitHub Actions Success!"
+  content  = "Infra CI/CD Test - Version 2.0!"
 }
